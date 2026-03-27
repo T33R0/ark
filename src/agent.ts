@@ -11,6 +11,7 @@ import type { IToolRegistry, ToolResult } from './tools/types.js';
 import { CascadeRouter, createProvider } from './llm/router.js';
 import { createStore } from './persistence/index.js';
 import { ToolRegistry, getNativeTools } from './tools/index.js';
+import { connectMCPServers, disconnectMCPClients, type MCPClient } from './tools/mcp/index.js';
 import { loadConfig, createConfig } from './identity/loader.js';
 import { bootAgent } from './identity/boot.js';
 
@@ -39,6 +40,7 @@ export class Agent {
   private hooks: AgentHooks;
   private booted = false;
   private totalUsage: TokenUsage[] = [];
+  private mcpClients: MCPClient[] = [];
 
   constructor(options: AgentOptions) {
     if (options.configPath) {
@@ -80,6 +82,15 @@ export class Agent {
     const nativeTools = getNativeTools(nativeToolNames);
     for (const tool of nativeTools) {
       (this.tools as ToolRegistry).register(tool);
+    }
+
+    // 3b. Connect MCP servers
+    if (this.config.tools?.mcp?.length) {
+      const { tools: mcpTools, clients } = await connectMCPServers(this.config.tools.mcp);
+      this.mcpClients = clients;
+      for (const tool of mcpTools) {
+        (this.tools as ToolRegistry).register(tool);
+      }
     }
 
     // 4. Run boot sequence
@@ -387,6 +398,12 @@ export class Agent {
   async shutdown(): Promise<void> {
     if (this.config.behavior?.session_handoff && this.store) {
       await this.writeHandoff();
+    }
+
+    // Disconnect MCP servers
+    if (this.mcpClients.length) {
+      await disconnectMCPClients(this.mcpClients);
+      this.mcpClients = [];
     }
 
     if (this.hooks.onShutdown) {
