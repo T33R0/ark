@@ -35,6 +35,8 @@ export { MemoryStore } from './memory.js';
 export { SQLiteStore } from './sqlite.js';
 export { SupabaseStore } from './supabase.js';
 export { SCHEMA_SQL, SCHEMA_POSTGRES } from './schema.js';
+export { ScopedStore, PrivacyError, checkAccess, DEFAULT_PRIVACY } from './privacy.js';
+export type { CallerRole } from './privacy.js';
 export type {
   Store, SoulDirective, MindNode, LedgerEntry,
   SessionHandoff, ConversationTurn,

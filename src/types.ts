@@ -15,6 +15,7 @@ export interface AgentConfig {
   boot?: BootConfig;
   behavior?: BehaviorConfig;
   interfaces?: InterfacesConfig;
+  privacy?: PrivacyConfig;
 }
 
 // --- Identity ---
@@ -100,4 +101,22 @@ export interface TelegramInterfaceConfig {
   allowed_users?: number[];    // Whitelist of Telegram user IDs
   session_timeout?: number;    // Minutes before session reset (default: 1440 = 24h)
   batch_window?: number;       // Ms to wait for rapid messages (default: 1500)
+}
+
+// --- Privacy ---
+
+/** Visibility level for agent data */
+export type Visibility = 'owner' | 'admin' | 'public';
+
+export interface PrivacyConfig {
+  owner?: string;              // Who owns this agent's data (default: 'self')
+  admin?: string;              // System administrator identity
+  visibility?: {
+    conversations?: Visibility; // Default: 'owner'
+    mind?: Visibility;          // Default: 'owner'
+    soul?: Visibility;          // Default: 'admin'
+    state?: Visibility;         // Default: 'owner'
+    ledger?: Visibility;        // Default: 'admin'
+    handoff?: Visibility;       // Default: 'owner'
+  };
 }
