@@ -14,6 +14,7 @@ export interface AgentConfig {
   tools?: ToolsConfig;
   boot?: BootConfig;
   behavior?: BehaviorConfig;
+  interfaces?: InterfacesConfig;
 }
 
 // --- Identity ---
@@ -86,4 +87,17 @@ export interface BehaviorConfig {
   log_mistakes?: boolean;
   session_handoff?: boolean;
   max_tool_rounds?: number;
+}
+
+// --- Interfaces ---
+
+export interface InterfacesConfig {
+  telegram?: TelegramInterfaceConfig;
+}
+
+export interface TelegramInterfaceConfig {
+  token?: string;              // Bot token (or env: TELEGRAM_BOT_TOKEN)
+  allowed_users?: number[];    // Whitelist of Telegram user IDs
+  session_timeout?: number;    // Minutes before session reset (default: 1440 = 24h)
+  batch_window?: number;       // Ms to wait for rapid messages (default: 1500)
 }

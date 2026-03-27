@@ -10,6 +10,7 @@ import { startRepl } from './repl.js';
 import { createConfig } from '../identity/loader.js';
 import { runInit } from './init.js';
 import { startRoom } from './room.js';
+import { startTelegram } from '../interfaces/telegram.js';
 
 async function main() {
   const args = process.argv.slice(2);
@@ -33,6 +34,11 @@ async function main() {
 
   if (command === 'start') {
     await runStart(args.slice(1));
+    return;
+  }
+
+  if (command === 'telegram') {
+    await runTelegramCommand(args.slice(1));
     return;
   }
 
@@ -237,6 +243,46 @@ async function runRoomCommand(args: string[]): Promise<void> {
   await startRoom(agents, { topic, rounds });
 }
 
+async function runTelegramCommand(args: string[]): Promise<void> {
+  let configPath: string | undefined;
+  let token: string | undefined;
+  let allowedUsers: number[] | undefined;
+  let provider: string | undefined;
+  let model: string | undefined;
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if ((arg === '--token' || arg === '-t') && args[i + 1]) {
+      token = args[++i];
+    } else if ((arg === '--users' || arg === '-u') && args[i + 1]) {
+      allowedUsers = args[++i].split(',').map(Number).filter(n => !isNaN(n));
+    } else if ((arg === '-p' || arg === '--provider') && args[i + 1]) {
+      provider = args[++i];
+    } else if ((arg === '-m' || arg === '--model') && args[i + 1]) {
+      model = args[++i];
+    } else if (!arg.startsWith('-')) {
+      configPath = arg;
+    }
+  }
+
+  if (!configPath) {
+    console.error('Usage: ark telegram <config.yaml> [--token BOT_TOKEN] [--users 123,456]');
+    process.exit(1);
+  }
+
+  const absPath = resolve(configPath);
+  if (!existsSync(absPath)) {
+    console.error(`Config file not found: ${absPath}`);
+    process.exit(1);
+  }
+
+  const agent = new Agent({ configPath: absPath });
+  if (provider) agent.config.llm.provider = provider;
+  if (model) agent.config.llm.model = model;
+
+  await startTelegram(agent.config, { token, allowedUsers });
+}
+
 async function startAgent(configPath?: string, provider?: string, model?: string): Promise<void> {
   if (!configPath) {
     const defaults = ['agent.yaml', 'agent.yml', 'ark.yaml', 'ark.yml'];
@@ -288,6 +334,7 @@ Usage:
   ark init                        Create a new agent interactively
   ark test [config.yaml]          Quick smoke test
   ark room <a.yaml> <b.yaml> ...  Multi-agent chat room
+  ark telegram <config.yaml>      Connect agent to Telegram
   ark --help                      Show this help
 
 Commands:
@@ -295,6 +342,7 @@ Commands:
   start [config]           Start an agent REPL
   test [config]            Run a quick smoke test (boot, connect, chat, tools)
   room <configs...>        Start a multi-agent chat room
+  telegram <config>        Connect an agent to Telegram Bot API
 
 Options:
   -c, --config <path>      Path to agent YAML config
@@ -309,11 +357,18 @@ Room Options:
   -p, --provider <name>    Override provider for all agents
   -m, --model <name>       Override model for all agents
 
+Telegram Options:
+  -t, --token <token>      Bot token (or env: TELEGRAM_BOT_TOKEN)
+  -u, --users <ids>        Comma-separated allowed user IDs
+  -p, --provider <name>    Override LLM provider
+  -m, --model <name>       Override model
+
 Quick Start:
   ark init                                    # Create my-agent.yaml
   ark start my-agent.yaml                     # Start chatting
   ark test -p ollama -m qwen3:14b             # Test with local Ollama
   ark room agents/alpha.yaml agents/beta.yaml # Multi-agent chat
+  ark telegram agent.yaml --users 12345       # Telegram bot
 `);
 }
 

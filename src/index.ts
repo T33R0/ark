@@ -10,7 +10,8 @@ export type { AgentOptions, TurnResult } from './agent.js';
 export type {
   AgentConfig, IdentityConfig, LLMConfig, PersistenceConfig,
   ToolsConfig, BootConfig, BehaviorConfig, CascadeEntry,
-  ProviderConfig, MCPServerConfig,
+  ProviderConfig, MCPServerConfig, InterfacesConfig,
+  TelegramInterfaceConfig,
 } from './types.js';
 
 // LLM
@@ -43,3 +44,7 @@ export type {
 // Identity
 export { loadConfig, createConfig, bootAgent } from './identity/index.js';
 export type { BootContext, AgentHooks } from './identity/index.js';
+
+// Interfaces
+export { TelegramAdapter, startTelegram, splitMessage } from './interfaces/telegram.js';
+export type { TelegramAdapterOptions } from './interfaces/telegram.js';
