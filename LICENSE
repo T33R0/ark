@@ -1,21 +1,63 @@
-MIT License
+Ark Source Available License
+Version 1.0
 
 Copyright (c) 2026 Ark Contributors
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+1. GRANT OF RIGHTS
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+   Subject to the conditions below, you are granted a non-exclusive,
+   worldwide, royalty-free license to:
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+   a) Use Ark for any personal, educational, research, or internal
+      business purpose.
+   b) Modify, adapt, and create derivative works of Ark.
+   c) Distribute copies or derivative works of Ark for non-commercial
+      purposes, provided this license and copyright notice are included.
+   d) Use Ark as part of your own workflow, tooling, or agent systems
+      (commercial or non-commercial), as long as Ark itself is not the
+      product being sold.
+   e) Contribute improvements back to the project.
+
+2. COMMERCIAL RESTRICTION (Commons Clause)
+
+   You may NOT sell Ark, or any product that is substantially derived
+   from Ark, as a commercial product or hosted service without prior
+   written permission from the copyright holders.
+
+   "Substantially derived" means a product whose primary value comes
+   from Ark's code rather than from original work you have added.
+
+   For clarity, the following are PERMITTED:
+   - Using Ark internally at a company
+   - Building and selling a product that uses Ark as a component
+     (where your product's value is in your own code, content, or service)
+   - Offering consulting or services where you use Ark as a tool
+   - Academic and research use, including publication
+
+   The following REQUIRE written permission:
+   - Selling Ark itself (or a renamed/rebranded copy) as a product
+   - Offering Ark as a hosted service (SaaS) where Ark's runtime is
+     the primary value delivered to customers
+
+3. ATTRIBUTION
+
+   All copies and derivative works must include:
+   a) This license text in its entirety.
+   b) The original copyright notice.
+   c) A prominent notice stating any modifications made.
+
+4. NO WARRANTY
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+   IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+   CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+5. TERMINATION
+
+   This license terminates automatically if you violate any of its terms.
+   Upon termination, you must cease all use and distribution of the
+   software.

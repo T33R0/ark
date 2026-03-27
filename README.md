@@ -12,23 +12,45 @@
 
 Ark is a runtime for building AI agents that aren't locked to a single provider. Define your agent's identity, tools, and behavior in a YAML file, then run it against Anthropic, OpenAI, Google, Ollama, or any OpenAI-compatible endpoint. Agents persist their knowledge, track their own mistakes, and self-correct over time using a built-in learning loop (soul, mind, ledger). Zero vendor lock-in — swap providers by changing one line.
 
+## Status
+
+**v0.1.0** — early release, actively developed. Expect breaking changes.
+
+| Feature | Status |
+|---------|--------|
+| SQLite persistence | Stable |
+| Supabase persistence | Experimental |
+| Streaming | Works with Anthropic and OpenAI-compatible providers |
+| MCP tool integration | Config schema exists, client not yet implemented |
+
 ## Quick Start
 
+**Prerequisites:** [Node.js](https://nodejs.org/) >= 20 and [Ollama](https://ollama.com/) installed.
+
 ```bash
-# 1. Clone and install
+# 1. Pull a model (one-time)
+ollama pull qwen3:14b
+
+# 2. Clone and install
 git clone https://github.com/OWNER/ark.git
 cd ark
 npm install
 npm run build
 
-# 2. Run with Ollama (local, free)
+# 3. Run — you now have an AI agent with a learning loop
 ark -p ollama -m qwen3:14b
+```
 
-# 3. Or run with Anthropic
+That's it. No API keys, no cloud accounts. You're talking to a local agent that persists its knowledge in SQLite.
+
+Want to use a cloud provider instead?
+
+```bash
+# Anthropic
 export ANTHROPIC_API_KEY=sk-ant-...
 ark -p anthropic -m claude-sonnet-4-5-20250514
 
-# 4. Or use a YAML config
+# Or use a YAML config for full control
 ark agents/example.yaml
 ```
 
@@ -197,6 +219,15 @@ SQLite is the default. The database file is created automatically on first run.
 
 Tools are opt-in. List only the ones your agent needs in `tools.native`.
 
+## Security
+
+Ark gives agents real capabilities. Treat configuration with the same care you'd give any tool with shell access.
+
+- **Shell access.** The `shell` tool gives the LLM full shell access as the running user. This is powerful but dangerous with untrusted models. Tools are opt-in per config — omit `shell` for safer agents (see `agents/coach.yaml` for a zero-tools example).
+- **Secrets.** Never put real API keys in YAML files. Use `${ENV_VAR}` references and `.env` files.
+- **Remote persistence.** The Supabase adapter sends queries to a remote database. Ensure your RLS policies are configured correctly.
+- **File access.** Agents can read and write files. Scope the working directory carefully and only grant the file tools your agent actually needs.
+
 ## Programmatic API
 
 Use Ark as a library instead of the CLI:
@@ -312,6 +343,10 @@ Unit tests cover the agent lifecycle, LLM provider abstraction, persistence adap
 
 Requires Node.js >= 20.
 
+## Contributing
+
+Contributions welcome — issues, PRs, and feedback all appreciated. If you find a bug or have an idea, open an issue. If you build something cool with Ark, we'd love to hear about it.
+
 ## License
 
-[MIT](LICENSE)
+[Ark Source Available License](LICENSE) — free for personal use, learning, research, and non-commercial projects. Commercial redistribution of Ark itself requires permission. See [LICENSE](LICENSE) for details.
