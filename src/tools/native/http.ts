@@ -25,6 +25,20 @@ export const httpFetchTool: RegisteredTool = {
     const method = (args.method as string) || 'GET';
     const timeout = (args.timeout as number) || 30000;
 
+    // SSRF protection: block private/internal IPs
+    try {
+      const parsed = new URL(url);
+      const hostname = parsed.hostname;
+      if (isPrivateHost(hostname)) {
+        return {
+          content: `Blocked: "${hostname}" resolves to a private/internal address. http_fetch cannot access private networks.`,
+          is_error: true,
+        };
+      }
+    } catch {
+      return { content: `Invalid URL: ${url}`, is_error: true };
+    }
+
     try {
       const fetchOptions: RequestInit = {
         method,
@@ -70,3 +84,26 @@ export const httpFetchTool: RegisteredTool = {
     }
   },
 };
+
+/** Block requests to private/internal network addresses */
+function isPrivateHost(hostname: string): boolean {
+  // IPv4 private ranges
+  if (/^127\./.test(hostname)) return true;
+  if (/^10\./.test(hostname)) return true;
+  if (/^172\.(1[6-9]|2\d|3[01])\./.test(hostname)) return true;
+  if (/^192\.168\./.test(hostname)) return true;
+  if (/^169\.254\./.test(hostname)) return true;       // link-local
+  if (/^0\./.test(hostname)) return true;
+
+  // IPv6 private
+  if (hostname === '::1' || hostname === '[::1]') return true;
+  if (/^f[cd]/i.test(hostname)) return true;            // fc00::/7
+  if (/^fe80/i.test(hostname)) return true;             // link-local
+
+  // Common internal hostnames
+  if (hostname === 'localhost') return true;
+  if (hostname === 'metadata.google.internal') return true;
+  if (hostname === '169.254.169.254') return true;      // cloud metadata
+
+  return false;
+}

@@ -12,6 +12,7 @@ import { CascadeRouter, createProvider } from './llm/router.js';
 import { createStore } from './persistence/index.js';
 import { ToolRegistry, getNativeTools } from './tools/index.js';
 import { connectMCPServers, disconnectMCPClients, type MCPClient } from './tools/mcp/index.js';
+import { createLearningEngine, type LearningEngine } from './learning/index.js';
 import { loadConfig, createConfig } from './identity/loader.js';
 import { bootAgent } from './identity/boot.js';
 
@@ -41,6 +42,7 @@ export class Agent {
   private booted = false;
   private totalUsage: TokenUsage[] = [];
   private mcpClients: MCPClient[] = [];
+  private learning!: LearningEngine;
 
   constructor(options: AgentOptions) {
     if (options.configPath) {
@@ -75,6 +77,9 @@ export class Agent {
     // 2. Create persistence store
     this.store = createStore(this.config.persistence);
     await this.store.init();
+
+    // 2b. Create learning engine
+    this.learning = createLearningEngine(this.store, this.config.behavior);
 
     // 3. Register tools
     this.tools = new ToolRegistry();
@@ -155,6 +160,11 @@ export class Agent {
             is_error: result.is_error,
           });
 
+          // Log tool errors to the learning engine
+          if (result.is_error) {
+            await this.learning.logToolError(tc.name, tc.arguments, result.content);
+          }
+
           // Add tool result message
           this.messages.push({
             role: 'tool',
@@ -178,6 +188,14 @@ export class Agent {
       }
 
       break;
+    }
+
+    // If we exhausted maxRounds without a final response, indicate it
+    if (!finalText && toolCallsMade.length > 0) {
+      finalText = `[Agent exceeded ${maxRounds} tool rounds without producing a final response]`;
+      if (this.hooks.onError) {
+        await this.hooks.onError(new Error(finalText));
+      }
     }
 
     return {
@@ -216,6 +234,7 @@ export class Agent {
             content: response.text,
             tool_calls: response.tool_calls,
           });
+          await this.persistTurn('assistant', response.text);
 
           for (const tc of response.tool_calls) {
             yield { type: 'tool_call_end', tool_call: tc };
@@ -227,6 +246,7 @@ export class Agent {
               tool_call_id: tc.id,
               name: tc.name,
             });
+            await this.persistTurn('tool', result.content);
           }
           continue;
         }
@@ -273,6 +293,7 @@ export class Agent {
           content: accumulatedText,
           tool_calls: completedToolCalls,
         });
+        await this.persistTurn('assistant', accumulatedText);
 
         for (const tc of completedToolCalls) {
           if (this.hooks.onToolCall) {
@@ -293,6 +314,7 @@ export class Agent {
             tool_call_id: tc.id,
             name: tc.name,
           });
+          await this.persistTurn('tool', result.content);
         }
         // Continue loop for next response
         continue;
@@ -379,6 +401,11 @@ export class Agent {
     return this.provider;
   }
 
+  /** Get the learning engine */
+  getLearning(): LearningEngine {
+    return this.learning;
+  }
+
   /** Get the boot context */
   getBootContext(): BootContext {
     return this.bootContext;
@@ -424,8 +451,11 @@ export class Agent {
         role: role as 'user' | 'assistant',
         content,
       });
-    } catch {
-      // Don't fail the conversation if persistence fails
+    } catch (err) {
+      // Don't fail the conversation, but surface the error via hook
+      if (this.hooks.onError) {
+        await this.hooks.onError(err instanceof Error ? err : new Error(String(err)));
+      }
     }
   }
 }
