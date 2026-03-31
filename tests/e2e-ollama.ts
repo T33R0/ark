@@ -386,7 +386,7 @@ async function main() {
   console.log(`  Report written to: ${reportPath}`);
 
   // Also write a human-readable summary
-  const summaryPath = '/Users/raw_shu/Projects/forge/tests/e2e-results.txt';
+  const summaryPath = '/Users/raw_shu/Projects/ark/tests/e2e-results.txt';
   const summary = [
     'Ark E2E Test Results',
     '=' .repeat(50),

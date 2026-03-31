@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__supabase__execute_sql",
+      "mcp__supabase__list_tables",
+      "Bash(npm test:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx tsx:*)",
+      "Bash(npx next:*)",
+      "Bash(git:*)",
+      "Bash(grep:*)",
+      "Bash(curl:*)",
+      "Bash(ls:*)",
+      "Bash(wc:*)",
+      "Bash(ps:*)",
+      "Bash(node:*)",
+      "Bash(launchctl list:*)",
+      "Bash(launchctl load:*)",
+      "Bash(launchctl unload:*)",
+      "Bash(launchctl stop:*)",
+      "Bash(launchctl start:*)",
+      "Bash(gh api:*)",
+      "Bash(npx vercel:*)",
+      "Read(//Users/raw_shu/Projects/ark/**)",
+      "Read(//tmp/**)"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "supabase",
+    "google-workspace"
+  ]
+}
